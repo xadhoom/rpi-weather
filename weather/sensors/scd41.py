@@ -13,6 +13,9 @@ class Scd41(object):
         self.serial = [hex(i) for i in self._sensor.serial_number]
         self._press_cb = press_fun
         logging.debug("Serial number: %s", self.serial)
+
+        self._sensor.stop_periodic_measurement() # if any
+        self._sensor.factory_reset()
         self._sensor.start_periodic_measurement()
 
         logging.info("SCD41 ready")

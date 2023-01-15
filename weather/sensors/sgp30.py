@@ -2,6 +2,10 @@ import adafruit_sgp30
 import logging
 from weather import utils
 
+# according to datasheet, this sensor must be read
+# every second to ensure proper operation of the dynamic baseline
+# compensation algorithm
+
 
 class Sgp30(object):
     _sensor = None

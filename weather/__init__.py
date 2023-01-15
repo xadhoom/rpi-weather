@@ -43,13 +43,13 @@ def run():
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
-                      'elevation': local_elevation}, seconds=30)
+                      'elevation': local_elevation}, seconds=60)
     scheduler.add_job(lps22.read, 'interval', kwargs={'elevation':
                                                       local_elevation},
-                      seconds=30)
-    scheduler.add_job(scd41.read, 'interval',  seconds=30)
-    scheduler.add_job(shtc3.read, 'interval',  seconds=30)
-    scheduler.add_job(pm25.read, 'interval',  seconds=30)
+                      seconds=60)
+    scheduler.add_job(scd41.read, 'interval',  seconds=60)
+    scheduler.add_job(shtc3.read, 'interval',  seconds=60)
+    scheduler.add_job(pm25.read, 'interval',  seconds=60)
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
 
     try:
