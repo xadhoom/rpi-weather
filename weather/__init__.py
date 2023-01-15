@@ -6,6 +6,7 @@ from .sensors.lps22 import Lps22
 from .sensors.scd41 import Scd41
 from .sensors.sgp30 import Sgp30
 from .sensors.shtc3 import Shtc3
+from .sensors.pm25 import Pm25
 from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
 
 # location elevation, should be from config
@@ -33,34 +34,25 @@ def run():
 
     # init sensors
     bme280 = Bme280(i2c)
+    pm25 = Pm25(i2c)
     shtc3 = Shtc3(i2c)
     lps22 = Lps22(i2c, shtc3.temperature)
-    scd41 = Scd41(i2c)
+    scd41 = Scd41(i2c, lps22.pressure)
     sgp30 = Sgp30(i2c, shtc3.temperature, lps22.pressure,
                   shtc3.relative_humidity)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
-                      'elevation': local_elevation}, seconds=10)
+                      'elevation': local_elevation}, seconds=30)
     scheduler.add_job(lps22.read, 'interval', kwargs={'elevation':
-                                                      local_elevation}, seconds=10)
-    scheduler.add_job(scd41.read, 'interval',  seconds=10)
-    scheduler.add_job(shtc3.read, 'interval',  seconds=10)
+                                                      local_elevation},
+                      seconds=30)
+    scheduler.add_job(scd41.read, 'interval',  seconds=30)
+    scheduler.add_job(shtc3.read, 'interval',  seconds=30)
+    scheduler.add_job(pm25.read, 'interval',  seconds=30)
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
 
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         pass
-
-
-#    while True:
-#        await asyncio.gather(
-#            bme280.read(i2c),
-#            scd41.read(i2c),
-#            pm25.read(i2c),
-#            lps22.read(i2c),
-#            shtc3.read(i2c),
-#            sgp30.read(i2c),
-#            return_exceptions=True
-#        )
