@@ -3,6 +3,7 @@ import board
 import busio
 import pigpio
 from .storage import Store
+from .mqtt import MQTTSender
 from .sensors.bme280 import Bme280
 from .sensors.lps22 import Lps22
 from .sensors.scd41 import Scd41
@@ -36,6 +37,7 @@ def run():
     # init scheduler
     executors = {
         'default': {'type': 'threadpool', 'max_workers': 1},
+        'sender': {'type': 'threadpool', 'max_workers': 1},
     }
     job_defaults = {
         'coalesce': True,
@@ -46,6 +48,7 @@ def run():
     scheduler.configure(executors=executors, job_defaults=job_defaults)
 
     store = Store()
+    sender = MQTTSender(store)
 
     # init gpios
     gpio_intf = start_gpios()
@@ -74,6 +77,8 @@ def run():
     scheduler.add_job(pm25.read, 'interval',  seconds=10)
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
     scheduler.add_job(ups.read, 'interval',  seconds=60)
+
+    scheduler.add_job(sender.send, 'interval', executor="sender", seconds=120)
 
     try:
         scheduler.start()

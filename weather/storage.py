@@ -63,9 +63,15 @@ class Store(object):
 
     def put(self, data):
         try:
-            self._q.put(data)
+            self._q.put(data, block=False)
         except Full:
             logging.error("Queue full, dropping %r", data)
+
+    def get(self):
+        try:
+            return self._q.get(block=False)
+        except Empty:
+            return "__EMPTY__"
 
     def now_ts(self):
         return datetime.utcnow().timestamp()
