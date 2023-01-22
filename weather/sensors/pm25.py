@@ -28,6 +28,7 @@ STARTING = 1
 
 
 class Pm25(object):
+    _store = None
     _sensor = None
     _reset_pin = None
     _set_pin = None
@@ -38,7 +39,8 @@ class Pm25(object):
     _read_interval_sec = READ_INTVL_SEC-SPINUP_DELAY_SEC
     _spinup_delay_sec = SPINUP_DELAY_SEC
 
-    def __init__(self, i2c, gpio_intf, reset_pin=None, set_pin=None):
+    def __init__(self, i2c, gpio_intf, store=None, reset_pin=None, set_pin=None):
+        self._store = store
         self._sensor = PM25_I2C(i2c)
         self._reset_pin = reset_pin
         self._set_pin = set_pin
@@ -104,6 +106,11 @@ class Pm25(object):
         except RuntimeError:
             logging.error("Unable to read from sensor !")
             return
+
+        store = self._store
+        store.put_pm10("pmsa003i",  aqdata["pm10 env"])
+        store.put_pm25("pmsa003i",  aqdata["pm25 env"])
+        store.put_pm100("pmsa003i",  aqdata["pm100 env"])
 
         logging.debug("Standard PM 1.0: %d\tPM2.5: %d\tPM10: %d",
                       aqdata["pm10 standard"], aqdata["pm25 standard"], aqdata["pm100 standard"]

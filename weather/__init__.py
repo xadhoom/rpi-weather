@@ -2,6 +2,7 @@ import logging
 import board
 import busio
 import pigpio
+from .storage import Store
 from .sensors.bme280 import Bme280
 from .sensors.lps22 import Lps22
 from .sensors.scd41 import Scd41
@@ -9,6 +10,7 @@ from .sensors.sgp30 import Sgp30
 from .sensors.shtc3 import Shtc3
 from .sensors.pm25 import Pm25
 from .sensors.rain_gauge import RainGauge
+from .sensors.ups import Ups
 from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
 
 # location elevation, should be from config
@@ -43,19 +45,23 @@ def run():
     logging.getLogger('apscheduler').setLevel(logging.WARNING)
     scheduler.configure(executors=executors, job_defaults=job_defaults)
 
+    store = Store()
+
     # init gpios
     gpio_intf = start_gpios()
 
     # init sensors
-    bme280 = Bme280(i2c)
-    pm25 = Pm25(i2c)
+    bme280 = Bme280(i2c, store=store)
+    # 23 is pin 16, 24 is pin 18 on rpi
+    pm25 = Pm25(i2c, gpio_intf, store=store, set_pin=23, reset_pin=24)
     shtc3 = Shtc3(i2c)
-    lps22 = Lps22(i2c, shtc3.temperature)
-    scd41 = Scd41(i2c, lps22.pressure)
+    lps22 = Lps22(i2c, shtc3.temperature, store=store)
+    scd41 = Scd41(i2c, lps22.pressure, store=store)
     sgp30 = Sgp30(i2c, shtc3.temperature, lps22.pressure,
-                  shtc3.relative_humidity)
+                  shtc3.relative_humidity, store=store)
+    ups = Ups(store=store)
     # GPIO 26 is pin 37 on rpi
-    rain_gauge = RainGauge(gpio_intf, gpio=26)
+    rain_gauge = RainGauge(gpio_intf, gpio=26, store=store)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
@@ -65,8 +71,9 @@ def run():
                       seconds=60)
     scheduler.add_job(scd41.read, 'interval',  seconds=60)
     scheduler.add_job(shtc3.read, 'interval',  seconds=60)
-    scheduler.add_job(pm25.read, 'interval',  seconds=60)
+    scheduler.add_job(pm25.read, 'interval',  seconds=10)
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
+    scheduler.add_job(ups.read, 'interval',  seconds=60)
 
     try:
         scheduler.start()

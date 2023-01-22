@@ -12,12 +12,14 @@ class Sgp30(object):
     _temp_cb = None
     _hum_cb = None
     _press_cb = None
+    _store = None
 
-    def __init__(self, i2c, temp_fun, press_fun, hum_fun):
+    def __init__(self, i2c, temp_fun, press_fun, hum_fun, store=None):
         self._sensor = adafruit_sgp30.Adafruit_SGP30(i2c)
         self._temp_cb = temp_fun
         self._hum_cb = hum_fun
         self._press_cb = press_fun
+        self._store = store
 
         logging.info("SGP30 ready")
 
@@ -30,5 +32,9 @@ class Sgp30(object):
         sgp30.set_iaq_humidity(hum_gm3)
         eCO2, TVOC = sgp30.iaq_measure()
         raw = sgp30.raw_measure()
+
+        self._store.put_eco2("sgp30", eCO2)
+        self._store.put_tvoc("sgp30", TVOC)
+
         logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
         logging.debug("RAW= %r", raw)
