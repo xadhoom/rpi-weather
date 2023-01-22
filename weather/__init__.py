@@ -1,16 +1,27 @@
 import logging
 import board
 import busio
+import pigpio
 from .sensors.bme280 import Bme280
 from .sensors.lps22 import Lps22
 from .sensors.scd41 import Scd41
 from .sensors.sgp30 import Sgp30
 from .sensors.shtc3 import Shtc3
 from .sensors.pm25 import Pm25
+from .sensors.rain_gauge import RainGauge
 from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
 
 # location elevation, should be from config
 local_elevation = 152
+
+
+def start_gpios():
+    gpio_intf = pigpio.pi()
+    if not gpio_intf.connected:
+        logging.warning("Could not init connection to pigpio daemon")
+        exit()
+
+    return gpio_intf
 
 
 def run():
@@ -32,6 +43,9 @@ def run():
     logging.getLogger('apscheduler').setLevel(logging.WARNING)
     scheduler.configure(executors=executors, job_defaults=job_defaults)
 
+    # init gpios
+    gpio_intf = start_gpios()
+
     # init sensors
     bme280 = Bme280(i2c)
     pm25 = Pm25(i2c)
@@ -40,6 +54,8 @@ def run():
     scd41 = Scd41(i2c, lps22.pressure)
     sgp30 = Sgp30(i2c, shtc3.temperature, lps22.pressure,
                   shtc3.relative_humidity)
+    # GPIO 26 is pin 37 on rpi
+    rain_gauge = RainGauge(gpio_intf, gpio=26)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
