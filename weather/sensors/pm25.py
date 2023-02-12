@@ -1,5 +1,6 @@
 import logging
 import pigpio
+import time
 from datetime import datetime
 from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
@@ -12,14 +13,6 @@ READ_INTVL_SEC = 180
 # Delay in seconds between resuming from sleep
 # and performing the actual read. At least 30 seconds.
 SPINUP_DELAY_SEC = 45
-
-# TODO attach reset and set pins
-
-# reset_pin = None
-# If you have a GPIO, its not a bad idea to connect it to the RESET pin
-# reset_pin = DigitalInOut(board.G0)
-# reset_pin.direction = Direction.OUTPUT
-# reset_pin.value = False
 
 # NOTE: we call 'em pins, but really they follows GPIOs numbers, see https://pinout.xyz
 
@@ -41,17 +34,26 @@ class Pm25(object):
 
     def __init__(self, i2c, gpio_intf, store=None, reset_pin=None, set_pin=None):
         self._store = store
-        self._sensor = PM25_I2C(i2c)
         self._reset_pin = reset_pin
         self._set_pin = set_pin
         self._gpio_intf = gpio_intf
 
         self.init_pins()
+        self.maybe_reset()
+        self._sensor = PM25_I2C(i2c)
         self.shutdown()
 
         self._last_ts = self._utcnow()
 
         logging.info("PM2.5 ready")
+
+    def maybe_reset(self):
+        # pin must be already configured as appropriate!
+        if self._reset_pin:
+            self._gpio_intf.write(self._reset_pin, 0)
+            time.sleep(0.01)
+            self._gpio_intf.write(self._reset_pin, 1)
+            time.sleep(1)
 
     def init_pins(self):
         if self._reset_pin:
@@ -60,6 +62,7 @@ class Pm25(object):
 
         if self._set_pin:
             self._gpio_intf.set_mode(self._set_pin, pigpio.OUTPUT)
+            self._gpio_intf.write(self._set_pin, 1)
 
     def resume(self):
         logging.debug("Resuming PM25 sensor from sleep")
