@@ -6,3 +6,5 @@ adafruit-circuitpython-lps2x>=3.0.1
 adafruit-circuitpython-pm25>=2.1.13
 adafruit-circuitpython-scd4x>=1.3.8
 apscheduler>=3.9.1,<4
+paho-mqtt>=1.6.1,<2
+
