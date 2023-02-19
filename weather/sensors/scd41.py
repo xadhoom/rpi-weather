@@ -34,7 +34,7 @@ class Scd41(object):
                 humidity = scd4x.relative_humidity
 
                 self._store.put_co2("scd41", co2)
-                self._store.put_temperature("sc41", temperature)
+                self._store.put_temperature("scd41", temperature)
                 self._store.put_humidity("scd41", humidity)
 
                 logging.debug("CO2: %d ppm", co2)
