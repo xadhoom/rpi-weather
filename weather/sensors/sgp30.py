@@ -1,11 +1,14 @@
 import adafruit_sgp30
 import logging
+from datetime import datetime
 from weather import utils
 
 # according to datasheet, this sensor must be read
 # every second to ensure proper operation of the dynamic baseline
 # compensation algorithm
 
+# how often to save a value to the store
+SAMPLE_INTV = 60
 
 class Sgp30(object):
     _sensor = None
@@ -13,6 +16,7 @@ class Sgp30(object):
     _hum_cb = None
     _press_cb = None
     _store = None
+    _last_stored_ts = 0
 
     def __init__(self, i2c, temp_fun, press_fun, hum_fun, store=None):
         self._sensor = adafruit_sgp30.Adafruit_SGP30(i2c)
@@ -20,6 +24,7 @@ class Sgp30(object):
         self._hum_cb = hum_fun
         self._press_cb = press_fun
         self._store = store
+        self._last_stored_ts = 0
 
         logging.info("SGP30 ready")
 
@@ -33,8 +38,17 @@ class Sgp30(object):
         eCO2, TVOC = sgp30.iaq_measure()
         raw = sgp30.raw_measure()
 
-        self._store.put_eco2("sgp30", eCO2)
-        self._store.put_tvoc("sgp30", TVOC)
+        logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
+        logging.debug("RAW= %r", raw)
+        if self._utcnow() >= self._last_stored_ts + SAMPLE_INTV:
+            self._last_stored_ts = self._utcnow()
+            self._store.put_eco2("sgp30", eCO2)
+            self._store.put_tvoc("sgp30", TVOC)
 
         logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
         logging.debug("RAW= %r", raw)
+
+    def _utcnow(self):
+        now = datetime.utcnow()
+        return now.timestamp()
+
