@@ -8,7 +8,7 @@ from weather import utils
 # compensation algorithm
 
 # how often to save a value to the store
-SAMPLE_INTV = 60
+SAMPLE_INTV = 120
 
 class Sgp30(object):
     _sensor = None

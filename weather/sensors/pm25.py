@@ -12,7 +12,7 @@ from adafruit_pm25.i2c import PM25_I2C
 READ_INTVL_SEC = 180
 # Delay in seconds between resuming from sleep
 # and performing the actual read. At least 30 seconds.
-SPINUP_DELAY_SEC = 45
+SPINUP_DELAY_SEC = 35
 
 # NOTE: we call 'em pins, but really they follows GPIOs numbers, see https://pinout.xyz
 
