@@ -12,6 +12,7 @@ from .sensors.shtc3 import Shtc3
 from .sensors.pm25 import Pm25
 from .sensors.rain_gauge import RainGauge
 from .sensors.ups import Ups
+from .sensors.system import System
 from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
 
 # location elevation, should be from config
@@ -57,28 +58,30 @@ def run():
     bme280 = Bme280(i2c, store=store)
     # 23 is pin 16, 24 is pin 18 on rpi
     pm25 = Pm25(i2c, gpio_intf, store=store, set_pin=23, reset_pin=24)
-    shtc3 = Shtc3(i2c)
+    shtc3 = Shtc3(i2c, store=store)
     lps22 = Lps22(i2c, shtc3.temperature, store=store)
     scd41 = Scd41(i2c, lps22.pressure, store=store)
     sgp30 = Sgp30(i2c, shtc3.temperature, lps22.pressure,
                   shtc3.relative_humidity, store=store)
     ups = Ups(store=store)
+    system = System(store=store)
     # GPIO 26 is pin 37 on rpi
     rain_gauge = RainGauge(gpio_intf, gpio=26, store=store)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
-                      'elevation': local_elevation}, seconds=60)
+                      'elevation': local_elevation}, seconds=120)
     scheduler.add_job(lps22.read, 'interval', kwargs={'elevation':
                                                       local_elevation},
-                      seconds=60)
-    scheduler.add_job(scd41.read, 'interval',  seconds=60)
-    scheduler.add_job(shtc3.read, 'interval',  seconds=60)
+                      seconds=120)
+    scheduler.add_job(scd41.read, 'interval',  seconds=120)
+    scheduler.add_job(shtc3.read, 'interval',  seconds=120)
     scheduler.add_job(pm25.read, 'interval',  seconds=10)
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
     scheduler.add_job(ups.read, 'interval',  seconds=60)
+    scheduler.add_job(system.read, 'interval',  seconds=300)
 
-    scheduler.add_job(sender.send, 'interval', executor="sender", seconds=120)
+    scheduler.add_job(sender.send, 'interval', executor="sender", seconds=240)
 
     try:
         scheduler.start()

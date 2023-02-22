@@ -61,6 +61,10 @@ class Store(object):
         data = {"sensor": sensor, "pm10.0": value, "ts": self.now_ts()}
         self.put(data)
 
+    def put_ram_pct(self, sensor, value):
+        data = {"sensor": sensor, "ram_pct": value, "ts": self.now_ts()}
+        self.put(data)
+
     def put(self, data):
         try:
             self._q.put(data, block=False)
