@@ -4,9 +4,11 @@ import logging
 
 class Shtc3(object):
     _sensor = None
+    _store = None
 
-    def __init__(self, i2c):
+    def __init__(self, i2c, store=None):
         self._sensor = adafruit_shtc3.SHTC3(i2c)
+        self._store = store
 
         logging.info("SHTC3 ready")
 
@@ -15,6 +17,8 @@ class Shtc3(object):
         temperature, relative_humidity = sht.measurements
         logging.debug("Temperature: %0.1f C", temperature)
         logging.debug("Humidity: %0.1f %%", relative_humidity)
+        self._store.put_temperature("shtc3", temperature)
+        self._store.put_humidity("shtc3", relative_humidity)
 
     def temperature(self):
         temperature, _ = self._sensor.measurements
