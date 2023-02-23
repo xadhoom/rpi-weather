@@ -10,59 +10,59 @@ class Store(object):
         self._q = Queue(maxsize=0)  # unbounded, for now
 
     def put_temperature(self, sensor, value):
-        data = {"sensor": sensor, "temperature": value, "ts": self.now_ts()}
+        data = {"s": sensor, "temp": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_humidity(self, sensor, value):
-        data = {"sensor": sensor, "humidity": value, "ts": self.now_ts()}
+        data = {"s": sensor, "hum": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_pressure(self, sensor, value):
-        data = {"sensor": sensor, "pressure": value, "ts": self.now_ts()}
+        data = {"s": sensor, "pres": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_altitude(self, sensor, value):
-        data = {"sensor": sensor, "altitude": value, "ts": self.now_ts()}
+        data = {"s": sensor, "alt": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_voltage(self, sensor, value):
-        data = {"sensor": sensor, "voltage": value, "ts": self.now_ts()}
+        data = {"s": sensor, "volt": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_current(self, sensor, value):
-        data = {"sensor": sensor, "current": value, "ts": self.now_ts()}
+        data = {"s": sensor, "mAh": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_co2(self, sensor, value):
-        data = {"sensor": sensor, "co2": value, "ts": self.now_ts()}
+        data = {"s": sensor, "co2": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_eco2(self, sensor, value):
-        data = {"sensor": sensor, "eco2": value, "ts": self.now_ts()}
+        data = {"s": sensor, "eco2": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_tvoc(self, sensor, value):
-        data = {"sensor": sensor, "tvoc": value, "ts": self.now_ts()}
+        data = {"s": sensor, "tvoc": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_charge(self, sensor, value):
-        data = {"sensor": sensor, "charge_level": value, "ts": self.now_ts()}
+        data = {"s": sensor, "bat_level": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_pm10(self, sensor, value):
-        data = {"sensor": sensor, "pm1.0": value, "ts": self.now_ts()}
+        data = {"s": sensor, "pm1.0": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_pm25(self, sensor, value):
-        data = {"sensor": sensor, "pm2.5": value, "ts": self.now_ts()}
+        data = {"s": sensor, "pm2.5": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_pm100(self, sensor, value):
-        data = {"sensor": sensor, "pm10.0": value, "ts": self.now_ts()}
+        data = {"s": sensor, "pm10.0": value, "ts": self.now_ts()}
         self.put(data)
 
     def put_ram_pct(self, sensor, value):
-        data = {"sensor": sensor, "ram_pct": value, "ts": self.now_ts()}
+        data = {"s": sensor, "fmem_pct": value, "ts": self.now_ts()}
         self.put(data)
 
     def put(self, data):
@@ -78,4 +78,4 @@ class Store(object):
             return "__EMPTY__"
 
     def now_ts(self):
-        return datetime.utcnow().timestamp()
+        return int(datetime.utcnow().timestamp())
