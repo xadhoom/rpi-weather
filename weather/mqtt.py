@@ -66,7 +66,7 @@ class MQTTSender(object):
                 if value == "__EMPTY__":
                     break
 
-                value["sensor-id"] = self._config["sensor-id"]
+                value["station-id"] = self._config["sensor-id"]
                 events.append(value)
 
             if not events:
