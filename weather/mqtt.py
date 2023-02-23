@@ -6,6 +6,8 @@ from .config import config
 from paho.mqtt.packettypes import PacketTypes
 from paho.mqtt.properties import Properties
 
+KEEPALIVE_INTV=1800
+
 
 class MQTTSender(object):
     _store = None
@@ -16,17 +18,7 @@ class MQTTSender(object):
     def __init__(self, store):
         self._store = store
         self._config = config
-
-    def _init_mqtt(self):
-        self._mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
-        self._mqtt_client.on_connect = self.on_connect
-        self._mqtt_client.on_disconnect = self.on_disconnect
-        self._mqtt_client.enable_logger(logger=logging)
-        self._mqtt_client.username_pw_set(self._config["mqtt_user"],
-                                          self._config["mqtt_pass"])
-
-        if self._config["mqtt_ssl"]:
-            self._mqtt_client.tls_set()
+        self.connect()
 
     def connect(self):
         if self._disconnecting:
@@ -37,7 +29,7 @@ class MQTTSender(object):
         if self._config["mqtt_ssl"]:
             port = 8883
 
-        self._mqtt_client.connect(self._config["mqtt_host"], port=port)
+        self._mqtt_client.connect(self._config["mqtt_host"], port=port, keepalive=KEEPALIVE_INTV)
         self._mqtt_client.loop_start()
 
     def disconnect(self):
@@ -67,6 +59,7 @@ class MQTTSender(object):
             return
 
         try:
+            events = []
             while True:
                 value = self._store.get()
                 logging.debug("Popped %r", value)
@@ -74,22 +67,36 @@ class MQTTSender(object):
                     break
 
                 value["sensor-id"] = self._config["sensor-id"]
-                sensor = value["sensor"]
-                topic = self.build_topic(["sensor", sensor])
-                payload = json.dumps(value)
-                logging.debug("Sending %r to %s", payload, topic)
-                message_info = self._mqtt_client.publish(topic, payload, qos=0)
-                if message_info.rc != mqtt.MQTT_ERR_SUCCESS:
-                    logging.error("Error while sending message: %s",
-                                  message_info.rc)
-                    return
+                events.append(value)
+
+            if not events:
+                return
+
+            topic = self.build_topic()
+            payload = json.dumps(events)
+            logging.debug("Sending %r to %s", payload, topic)
+            message_info = self._mqtt_client.publish(topic, payload, qos=0)
+            if message_info.rc != mqtt.MQTT_ERR_SUCCESS:
+                logging.error("Error while sending message: %s",
+                                message_info.rc)
+                return
         except Exception as e:
             logging.error("Got exception while sending: %r", e)
-        finally:
             self.disconnect()
 
-    def build_topic(self, segments):
+    def build_topic(self):
         root = self._config["mqtt_root_topic"]
-        topic = "/".join([root, self._config["sensor-id"]] + segments)
+        topic = "/".join([root, self._config["sensor-id"]])
 
         return topic
+
+    def _init_mqtt(self):
+        self._mqtt_client = mqtt.Client(protocol=mqtt.MQTTv5)
+        self._mqtt_client.on_connect = self.on_connect
+        self._mqtt_client.on_disconnect = self.on_disconnect
+        self._mqtt_client.enable_logger(logger=logging)
+        self._mqtt_client.username_pw_set(self._config["mqtt_user"],
+                                          self._config["mqtt_pass"])
+
+        if self._config["mqtt_ssl"]:
+            self._mqtt_client.tls_set()
