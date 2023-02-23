@@ -18,6 +18,15 @@ from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
 # location elevation, should be from config
 local_elevation = 152
 
+# log level
+# possible levels, not in correct prio order
+# logging.ERROR
+# logging.INFO
+# logging.WARNING
+# logging.CRITICAL
+# logging.DEBUG
+log_level = logging.DEBUG
+
 
 def start_gpios():
     gpio_intf = pigpio.pi()
@@ -30,7 +39,7 @@ def start_gpios():
 
 def run():
     logfmt = "%(asctime)s %(module)-10s: %(message)s"
-    logging.basicConfig(level=logging.DEBUG, format=logfmt)
+    logging.basicConfig(level=log_level, format=logfmt)
 
     # init bus
     i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
