@@ -39,7 +39,7 @@ class Sgp30(object):
         raw = sgp30.raw_measure()
 
         logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
-        logging.debug("RAW= %r", raw)
+        # logging.debug("RAW= %r", raw)
         if self._utcnow() >= self._last_stored_ts + SAMPLE_INTV:
             self._last_stored_ts = self._utcnow()
             self._store.put_eco2("sgp30", eCO2)
