@@ -10,7 +10,7 @@ from .sensors.scd41 import Scd41
 from .sensors.sgp30 import Sgp30
 from .sensors.shtc3 import Shtc3
 from .sensors.pm25 import Pm25
-from .sensors.rain_gauge import RainGauge
+from .sensors.davis import Davis
 from .sensors.ups import Ups
 from .sensors.system import System
 from apscheduler.schedulers.blocking import BlockingScheduler as Scheduler
@@ -69,8 +69,7 @@ def run():
                   shtc3.relative_humidity, store=store)
     ups = Ups(store=store)
     system = System(store=store)
-    # GPIO 26 is pin 37 on rpi
-    rain_gauge = RainGauge(gpio=26, store=store)
+    davis = Davis(i2c, store=store)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
@@ -84,6 +83,12 @@ def run():
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
     scheduler.add_job(ups.read, 'interval',  seconds=60)
     scheduler.add_job(system.read, 'interval',  seconds=300)
+
+    scheduler.add_job(davis.read_wind_direction, 'interval',  seconds=1)
+    scheduler.add_job(davis.read_wind_speed, 'interval',  seconds=1)
+    scheduler.add_job(davis.read_rain_rate, 'interval',  seconds=1)
+    scheduler.add_job(davis.read_rain_daily, 'interval',  seconds=1)
+    scheduler.add_job(davis.read_rtc, 'interval',  seconds=5)
 
     scheduler.add_job(sender.send, 'interval', executor="sender", seconds=240)
 

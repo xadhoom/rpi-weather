@@ -61,6 +61,22 @@ class Store(object):
         data = {"s": sensor, "pm10.0": value, "ts": self.now_ts()}
         self.put(data)
 
+    def put_wind_speed(self, sensor, value):
+        data = {"s": sensor, "km/h": value, "ts": self.now_ts()}
+        self.put(data)
+
+    def put_wind_direction(self, sensor, value):
+        data = {"s": sensor, "degrees": value, "ts": self.now_ts()}
+        self.put(data)
+
+    def put_rain_rate(self, sensor, value):
+        data = {"s": sensor, "mm/hr": value, "ts": self.now_ts()}
+        self.put(data)
+
+    def put_daily_rain(self, sensor, value):
+        data = {"s": sensor, "mm": value, "ts": self.now_ts()}
+        self.put(data)
+
     def put_ram_pct(self, sensor, value):
         data = {"s": sensor, "fmem_pct": value, "ts": self.now_ts()}
         self.put(data)
