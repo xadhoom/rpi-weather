@@ -1,6 +1,6 @@
 import logging
-import pigpio
 import time
+import RPi.GPIO as GPIO
 from datetime import datetime
 from digitalio import DigitalInOut, Direction, Pull
 from adafruit_pm25.i2c import PM25_I2C
@@ -25,18 +25,16 @@ class Pm25(object):
     _sensor = None
     _reset_pin = None
     _set_pin = None
-    _gpio_intf = None
     _last_ts = None
     _running = False
     _state = IDLE
     _read_interval_sec = READ_INTVL_SEC-SPINUP_DELAY_SEC
     _spinup_delay_sec = SPINUP_DELAY_SEC
 
-    def __init__(self, i2c, gpio_intf, store=None, reset_pin=None, set_pin=None):
+    def __init__(self, i2c, store=None, reset_pin=None, set_pin=None):
         self._store = store
         self._reset_pin = reset_pin
         self._set_pin = set_pin
-        self._gpio_intf = gpio_intf
 
         self.init_pins()
         self.maybe_reset()
@@ -50,25 +48,25 @@ class Pm25(object):
     def maybe_reset(self):
         # pin must be already configured as appropriate!
         if self._reset_pin:
-            self._gpio_intf.write(self._reset_pin, 0)
+            GPIO.output(self._reset_pin, GPIO.LOW)
             time.sleep(0.01)
-            self._gpio_intf.write(self._reset_pin, 1)
+            GPIO.output(self._reset_pin, GPIO.HIGH)
             time.sleep(1)
 
     def init_pins(self):
         if self._reset_pin:
-            self._gpio_intf.set_mode(self._reset_pin, pigpio.OUTPUT)
-            self._gpio_intf.write(self._reset_pin, 1)
+            GPIO.setup(self._reset_pin, GPIO.OUT)
+            GPIO.output(self._reset_pin, GPIO.HIGH)
 
         if self._set_pin:
-            self._gpio_intf.set_mode(self._set_pin, pigpio.OUTPUT)
-            self._gpio_intf.write(self._set_pin, 1)
+            GPIO.setup(self._set_pin, GPIO.OUT)
+            GPIO.output(self._set_pin, GPIO.HIGH)
 
     def resume(self):
         logging.debug("Resuming PM25 sensor from sleep")
 
         if self._set_pin:
-            self._gpio_intf.write(self._set_pin, 1)
+            GPIO.output(self._set_pin, GPIO.HIGH)
 
         self._running = True
         self._state = STARTING
@@ -77,7 +75,7 @@ class Pm25(object):
         logging.debug("Putting PM25 sensor to sleep")
 
         if self._set_pin:
-            self._gpio_intf.write(self._set_pin, 0)
+            GPIO.output(self._set_pin, GPIO.LOW)
 
         self._running = False
         self._state = IDLE

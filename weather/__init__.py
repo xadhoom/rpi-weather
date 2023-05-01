@@ -1,7 +1,7 @@
 import logging
 import board
 import busio
-import pigpio
+import RPi.GPIO as GPIO
 from .storage import Store
 from .mqtt import MQTTSender
 from .sensors.bme280 import Bme280
@@ -28,13 +28,8 @@ local_elevation = 152
 log_level = logging.DEBUG
 
 
-def start_gpios():
-    gpio_intf = pigpio.pi()
-    if not gpio_intf.connected:
-        logging.warning("Could not init connection to pigpio daemon")
-        exit()
-
-    return gpio_intf
+def configure_gpios():
+    GPIO.setmode(GPIO.BCM)  # see https://pinout.xyz
 
 
 def run():
@@ -61,12 +56,12 @@ def run():
     sender = MQTTSender(store)
 
     # init gpios
-    gpio_intf = start_gpios()
+    configure_gpios()
 
     # init sensors
     bme280 = Bme280(i2c, store=store)
     # 23 is pin 16, 24 is pin 18 on rpi
-    pm25 = Pm25(i2c, gpio_intf, store=store, set_pin=23, reset_pin=24)
+    pm25 = Pm25(i2c, store=store, set_pin=23, reset_pin=24)
     shtc3 = Shtc3(i2c, store=store)
     lps22 = Lps22(i2c, shtc3.temperature, store=store)
     scd41 = Scd41(i2c, lps22.pressure, store=store)
@@ -75,7 +70,7 @@ def run():
     ups = Ups(store=store)
     system = System(store=store)
     # GPIO 26 is pin 37 on rpi
-    rain_gauge = RainGauge(gpio_intf, gpio=26, store=store)
+    rain_gauge = RainGauge(gpio=26, store=store)
 
     # add jobs
     scheduler.add_job(bme280.read, 'interval', kwargs={
