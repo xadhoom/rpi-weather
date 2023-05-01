@@ -91,6 +91,9 @@ class Davis(object):
 
         logging.info("Rain gauge ready")
 
+    def set_rtc(self):
+        self._device.set_rtc()
+
     def read_wind_direction(self):
         value = self._device.read_wind_direction()
         if value != self._old_wind_dir:

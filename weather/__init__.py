@@ -25,7 +25,7 @@ local_elevation = 152
 # logging.WARNING
 # logging.CRITICAL
 # logging.DEBUG
-log_level = logging.DEBUG
+log_level = logging.INFO
 
 
 def configure_gpios():
@@ -88,7 +88,7 @@ def run():
     scheduler.add_job(davis.read_wind_speed, 'interval',  seconds=1)
     scheduler.add_job(davis.read_rain_rate, 'interval',  seconds=1)
     scheduler.add_job(davis.read_rain_daily, 'interval',  seconds=1)
-    scheduler.add_job(davis.read_rtc, 'interval',  seconds=5)
+    scheduler.add_job(davis.set_rtc, 'interval',  seconds=1800)
 
     scheduler.add_job(sender.send, 'interval', executor="sender", seconds=240)
 
