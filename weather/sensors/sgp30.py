@@ -30,23 +30,20 @@ class Sgp30(object):
 
     def read(self):
         sgp30 = self._sensor
-
-        hum_gm3 = utils.humidity_to_gm3(self._temp_cb(),
-                                        self._press_cb(), self._hum_cb())
-
-        sgp30.set_iaq_humidity(hum_gm3)
         eCO2, TVOC = sgp30.iaq_measure()
-        raw = sgp30.raw_measure()
 
         logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
-        # logging.debug("RAW= %r", raw)
+
         if self._utcnow() >= self._last_stored_ts + SAMPLE_INTV:
             self._last_stored_ts = self._utcnow()
             self._store.put_eco2("sgp30", eCO2)
             self._store.put_tvoc("sgp30", TVOC)
+            self._set_iaq_hum()
 
-        logging.debug("eCO2 = %d ppm \t TVOC = %d ppb", eCO2, TVOC)
-        logging.debug("RAW= %r", raw)
+    def _set_iaq_hum(self):
+        hum_gm3 = utils.humidity_to_gm3(self._temp_cb(),
+                                        self._press_cb(), self._hum_cb())
+        sgp30.set_iaq_humidity(hum_gm3)
 
     def _utcnow(self):
         now = datetime.utcnow()
