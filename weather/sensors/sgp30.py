@@ -43,7 +43,7 @@ class Sgp30(object):
     def _set_iaq_hum(self):
         hum_gm3 = utils.humidity_to_gm3(self._temp_cb(),
                                         self._press_cb(), self._hum_cb())
-        sgp30.set_iaq_humidity(hum_gm3)
+        self._sensor.set_iaq_humidity(hum_gm3)
 
     def _utcnow(self):
         now = datetime.utcnow()
