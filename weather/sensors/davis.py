@@ -96,6 +96,19 @@ class Davis(object):
 
     def read_wind_direction(self):
         value = self._device.read_wind_direction()
+
+        # round to the nearest value divisible by 5
+        # 1,2 will be mapped to the lower value
+        # 3,4 to the higher
+        # this is done to prevent little oscillations that
+        # may generate a lot of noise in data and generate
+        # excess traffic
+        rem = value % 5
+        if rem > 2:
+            value = value + (5 - rem)
+        else:
+            value = value - rem
+
         if value != self._old_wind_dir:
             self._store.put_wind_direction("wind_vane", value)
             self._old_wind_dir = value
