@@ -82,19 +82,33 @@ class Davis(object):
     _old_rain_rate = -1
     _old_wind_speed = -1
     _old_wind_dir = -1
+    _last_reset_ts = 0
 
     def __init__(self, i2c, store=None):
         self._device = RainAnemo(i2c)
         self._store = store
 
         self._device.set_rtc()
+        self._last_reset_ts = self._utcnow()
 
         logging.info("Rain gauge ready")
 
     def set_rtc(self):
         self._device.set_rtc()
 
+    def reset_send_timers(self):
+        # Every 5min reset values so we send them anyway, even
+        # when are not changed
+        interval = 300
+        if (self._utcnow() - self._last_reset_ts) >= interval:
+            self._last_reset_ts = self._utcnow()
+            self._old_daily_rain = -1
+            self._old_rain_rate = -1
+            self._old_wind_speed = -1
+            self._old_wind_dir = -1
+
     def read(self):
+        self.reset_send_timers()
         self.read_wind_direction()
         self.read_wind_speed()
         self.read_rain_rate()
@@ -146,3 +160,7 @@ class Davis(object):
         dt = self._device.read_rtc()
         logging.debug("Davis date: %s", dt)
         logging.debug("--- END RTC read ---")
+
+    def _utcnow(self):
+        now = datetime.utcnow()
+        return now.timestamp()
