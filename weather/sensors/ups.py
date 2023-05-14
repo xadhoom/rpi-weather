@@ -21,9 +21,12 @@ class Ups(object):
         charge = status.GetChargeLevel()
 
         store = self._store
-        store.put_voltage("ups_battery", bat_volt['data'])
-        store.put_current("ups_battery", bat_cur['data'])
-        store.put_wattage("ups_battery", bat_volt['data'] * bat_cur['data'])
+        voltage = bat_volt['data'] / 1000
+        current = bat_cur['data']  # in milliamps
+        wattage = voltage * (current/1000)
+        store.put_voltage("ups_battery", voltage)
+        store.put_current("ups_battery", current)
+        store.put_wattage("ups_battery", wattage)
         store.put_temperature("ups_battery", bat_temp['data'])
         store.put_charge("ups_battery", charge['data'])
 
