@@ -33,6 +33,10 @@ class Store(object):
         data = {"s": sensor, "mAh": value, "ts": self.now_ts()}
         self.put(data)
 
+    def put_wattage(self, sensor, value):
+        data = {"s": sensor, "W": value, "ts": self.now_ts()}
+        self.put(data)
+
     def put_co2(self, sensor, value):
         data = {"s": sensor, "co2": value, "ts": self.now_ts()}
         self.put(data)

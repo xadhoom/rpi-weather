@@ -23,6 +23,7 @@ class Ups(object):
         store = self._store
         store.put_voltage("ups_battery", bat_volt['data'])
         store.put_current("ups_battery", bat_cur['data'])
+        store.put_wattage("ups_battery", bat_volt['data'] * bat_cur['data'])
         store.put_temperature("ups_battery", bat_temp['data'])
         store.put_charge("ups_battery", charge['data'])
 
