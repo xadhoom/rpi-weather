@@ -1,4 +1,4 @@
-Adafruit-Blinka>=8.11.0
+Adafruit-Blinka>=8.18.1
 adafruit-circuitpython-bme280>=2.6.19
 adafruit-circuitpython-sgp30>=3.0.6
 adafruit-circuitpython-shtc3>=1.1.11
