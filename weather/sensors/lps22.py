@@ -16,6 +16,7 @@ class Lps22(object):
         logging.info("LPS22 ready")
 
     def read(self, elevation=0):
+        logging.debug("--- START LPS22 read ---")
         lps = self._sensor
         temperature = lps.temperature
         pressure = lps.pressure
@@ -28,6 +29,7 @@ class Lps22(object):
         logging.debug("Pressure: %.2f hPa", pressure)
         logging.debug("Sea Level Pressure: %.2f hPa", sea_pressure)
         logging.debug("Temperature: %.2f C", temperature)
+        logging.debug("--- END LPS22 read ---")
 
     def pressure(self):
         # this is local pressure, not adjusted to sea level

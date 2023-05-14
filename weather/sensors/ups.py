@@ -13,6 +13,7 @@ class Ups(object):
         logging.info("UPS sensor ready")
 
     def read(self):
+        logging.debug("--- START UPS read ---")
         status = self.ups.status
         bat_temp = status.GetBatteryTemperature()
         bat_volt = status.GetBatteryVoltage()
@@ -29,3 +30,4 @@ class Ups(object):
         logging.debug("UPS battery voltage %r", bat_volt)
         logging.debug("UPS battery temperature %r", bat_temp)
         logging.debug("UPS battery current %r", bat_cur)
+        logging.debug("--- END UPS read ---")

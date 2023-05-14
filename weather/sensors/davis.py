@@ -95,6 +95,7 @@ class Davis(object):
         self._device.set_rtc()
 
     def read_wind_direction(self):
+        logging.debug("--- START WIND DIRECTION read ---")
         value = self._device.read_wind_direction()
         # ignore variations of less than 4° degrees
         if abs(value - self._old_wind_dir) > 4:
@@ -102,31 +103,40 @@ class Davis(object):
             self._old_wind_dir = value
 
         logging.debug("Wind direction: %d", value)
+        logging.debug("--- END WIND DIRECTION read ---")
 
     def read_wind_speed(self):
+        logging.debug("--- START WIND SPEED read ---")
         value = self._device.read_wind_speed()
         if value != self._old_wind_speed:
             self._store.put_wind_speed("anemometer", value)
             self._old_wind_speed = value
 
         logging.debug("Wind speed: %.2f", value)
+        logging.debug("--- END WIND SPEED read ---")
 
     def read_rain_daily(self):
+        logging.debug("--- START DAILY RAIN read ---")
         value = self._device.read_rain_daily()
         if value != self._old_daily_rain:
             self._store.put_daily_rain("daily_rain", value)
             self._old_daily_rain = value
 
         logging.debug("Daily rain: %.2f ", value)
+        logging.debug("--- END DAILY RAIN read ---")
 
     def read_rain_rate(self):
+        logging.debug("--- START RAIN RATE read ---")
         value = self._device.read_rain_rate()
         if value != self._old_rain_rate:
             self._store.put_rain_rate("rain_rate", value)
             self._old_rain_rate = value
 
         logging.debug("Rain rate: %.2f mm/hr", value)
+        logging.debug("--- END RAIN RATE read ---")
 
     def read_rtc(self):
+        logging.debug("--- START RTC read ---")
         dt = self._device.read_rtc()
         logging.debug("Davis date: %s", dt)
+        logging.debug("--- END RTC read ---")

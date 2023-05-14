@@ -15,6 +15,7 @@ class Bme280(object):
         logging.info("BME280 ready")
 
     def read(self, elevation=0):
+        logging.debug("--- START BME280 read ---")
         bme280 = self._sensor
         temperature = bme280.temperature
         pressure = bme280.pressure
@@ -33,3 +34,4 @@ class Bme280(object):
         logging.debug("Pressure: %0.1f hPa" % pressure)
         logging.debug("Sea Level Pressure: %0.1f hPa" % sea_pressure)
         logging.debug("Altitude = %0.2f meters" % altitude)
+        logging.debug("--- END BME280 read ---")

@@ -29,6 +29,7 @@ class Sgp30(object):
         logging.info("SGP30 ready")
 
     def read(self):
+        logging.debug("--- START SGP30 read ---")
         sgp30 = self._sensor
         eCO2, TVOC = sgp30.iaq_measure()
 
@@ -39,6 +40,8 @@ class Sgp30(object):
             self._store.put_eco2("sgp30", eCO2)
             self._store.put_tvoc("sgp30", TVOC)
             self._set_iaq_hum()
+
+        logging.debug("--- END SGP30 read ---")
 
     def _set_iaq_hum(self):
         hum_gm3 = utils.humidity_to_gm3(self._temp_cb(),

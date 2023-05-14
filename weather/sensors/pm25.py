@@ -81,6 +81,7 @@ class Pm25(object):
         self._state = IDLE
 
     def read(self):
+        logging.debug("--- START PM25 read ---")
         elapsed = self._utcnow() - self._last_ts
         logging.debug("Elapsed %r in state %s", elapsed, self._state)
 
@@ -93,6 +94,7 @@ class Pm25(object):
                 self._read_impl()
                 self.shutdown()
                 self._last_ts = self._utcnow()
+        logging.debug("--- END PM25 read ---")
 
     def _utcnow(self):
         now = datetime.utcnow()
