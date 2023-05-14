@@ -94,6 +94,12 @@ class Davis(object):
     def set_rtc(self):
         self._device.set_rtc()
 
+    def read(self):
+        self.read_wind_direction()
+        self.read_wind_speed()
+        self.read_rain_rate()
+        self.read_rain_daily()
+
     def read_wind_direction(self):
         logging.debug("--- START WIND DIRECTION read ---")
         value = self._device.read_wind_direction()

@@ -83,11 +83,7 @@ def run():
     scheduler.add_job(sgp30.read, 'interval',  seconds=1)
     scheduler.add_job(ups.read, 'interval',  seconds=60)
     scheduler.add_job(system.read, 'interval',  seconds=300)
-
-    scheduler.add_job(davis.read_wind_direction, 'interval',  seconds=1)
-    scheduler.add_job(davis.read_wind_speed, 'interval',  seconds=1)
-    scheduler.add_job(davis.read_rain_rate, 'interval',  seconds=1)
-    scheduler.add_job(davis.read_rain_daily, 'interval',  seconds=1)
+    scheduler.add_job(davis.read, 'interval',  seconds=1)
     scheduler.add_job(davis.set_rtc, 'interval',  seconds=1800)
 
     scheduler.add_job(sender.send, 'interval', executor="sender", seconds=300)
