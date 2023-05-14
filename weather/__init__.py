@@ -90,7 +90,7 @@ def run():
     scheduler.add_job(davis.read_rain_daily, 'interval',  seconds=1)
     scheduler.add_job(davis.set_rtc, 'interval',  seconds=1800)
 
-    scheduler.add_job(sender.send, 'interval', executor="sender", seconds=240)
+    scheduler.add_job(sender.send, 'interval', executor="sender", seconds=300)
 
     try:
         scheduler.start()
